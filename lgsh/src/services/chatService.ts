@@ -1,51 +1,19 @@
-import api from './api';
-import type {
-  ChatMessage,
-  ChatCompanyUser,
-  ChatDirectRoomCreateRequest,
-  ChatMessageSendRequest,
-  ChatRoom,
-  ChatRoomCreateRequest,
-  ChatUnreadCountResponse,
-} from '@/types';
-import type { ApiResponse } from '@/types/common';
-
-const BASE_URL = '/chat';
-
-interface RoomListParams {
-  offset?: number;
-  limit?: number;
-}
-
-interface MessageListParams {
-  offset?: number;
-  limit?: number;
-}
+/**
+ * 채팅 서비스 - 데모 모드 (Mock)
+ */
+import type { ApiResponse } from "@/types/common";
+import type { ChatUnreadCountResponse } from "@/types";
 
 export const chatService = {
-  getRooms: (params: RoomListParams = {}) =>
-    api.get<ApiResponse<ChatRoom[]>>(`${BASE_URL}/rooms`, { params }),
-
-  createRoom: (data: ChatRoomCreateRequest) =>
-    api.post<ApiResponse<string>>(`${BASE_URL}/rooms`, data),
-
-  createDirectRoom: (data: ChatDirectRoomCreateRequest) =>
-    api.post<ApiResponse<string>>(`${BASE_URL}/rooms/direct`, data),
-
-  getCompanyUsersForDirect: () =>
-    api.get<ApiResponse<ChatCompanyUser[]>>(`${BASE_URL}/company-users`),
-
-  getMessages: (roomId: string, params: MessageListParams = {}) =>
-    api.get<ApiResponse<ChatMessage[]>>(`${BASE_URL}/rooms/${roomId}/messages`, { params }),
-
-  sendMessage: (data: ChatMessageSendRequest) =>
-    api.post<ApiResponse<void>>(`${BASE_URL}/messages`, data),
-
-  getUnreadCount: () =>
-    api.get<ApiResponse<ChatUnreadCountResponse>>(`${BASE_URL}/unread-count`),
-
-  markRoomRead: (roomId: string) =>
-    api.put<ApiResponse<void>>(`${BASE_URL}/rooms/${roomId}/read`),
+  getRooms: () => Promise.resolve({ data: { success: true, data: [], message: "", errorCode: null } }),
+  createRoom: () => Promise.resolve({ data: { success: true, data: "", message: "", errorCode: null } }),
+  createDirectRoom: () => Promise.resolve({ data: { success: true, data: "", message: "", errorCode: null } }),
+  getCompanyUsersForDirect: () => Promise.resolve({ data: { success: true, data: [], message: "", errorCode: null } }),
+  getMessages: () => Promise.resolve({ data: { success: true, data: [], message: "", errorCode: null } }),
+  sendMessage: () => Promise.resolve({ data: { success: true, data: null, message: "", errorCode: null } }),
+  getUnreadCount: (): Promise<{ data: ApiResponse<ChatUnreadCountResponse> }> =>
+    Promise.resolve({ data: { success: true, data: { unreadCount: 0 }, message: "", errorCode: null } }),
+  markRoomRead: () => Promise.resolve({ data: { success: true, data: null, message: "", errorCode: null } }),
 };
 
 export default chatService;

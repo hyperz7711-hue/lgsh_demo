@@ -14,30 +14,8 @@ export const menuService = {
   // 사용자 메뉴 조회 (역할 기반)
   // 참고: 메뉴 API가 백엔드에 미구현 시 Mock 사용 (메뉴는 기본 제공 필요)
   getUserMenus: async (): Promise<ApiResponse<MenuResponse>> => {
-    try {
-      const response = await api.get<ApiResponse<MenuResponse>>('/menus/user');
-      return response.data;
-    } catch (error) {
-      // Only fall back to mock menus when the backend endpoint is missing or
-      // the server is unreachable. Do NOT hide auth/permission errors.
-      const err = error as any;
-      const status = err?.response?.status;
-      const code = err?.code;
-
-      const isUnreachable =
-        code === 'ERR_NETWORK' ||
-        code === 'ECONNREFUSED' ||
-        /ECONNREFUSED|ENOTFOUND/i.test(String(err?.message || ''));
-
-      const isMissingEndpoint = status === 404;
-
-      if (isUnreachable || isMissingEndpoint) {
-        console.warn('메뉴 API 연결 실패/미구현으로 Mock 메뉴 사용');
-        return mockMenuService.getUserMenus();
-      }
-
-      throw error;
-    }
+    // 데모 모드: 항상 Mock 메뉴 사용
+    return mockMenuService.getUserMenus();
   },
 
   // 메뉴 접근 기록 (Redis 저장용)

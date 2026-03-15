@@ -1,8 +1,6 @@
 /**
- * 사용자 알림 서비스
+ * 알림 서비스 - 데모 모드 (Mock)
  */
-import api from './api';
-import type { ApiResponse } from '@/types/common';
 
 export interface UserAlert {
   alertId: number;
@@ -25,48 +23,30 @@ export interface AlertListResponse {
   totalPages: number;
 }
 
-const BASE_URL = '/alerts';
+const mockAlerts: UserAlert[] = [
+  { alertId: 1, alertType: "NOTICE", alertTypeNm: "공지사항", alertTitle: "시스템 점검 안내", alertMsg: "2026년 3월 1일 새벽 2시~4시 시스템 점검이 예정되어 있습니다.", linkUrl: "/notices", readYn: "N", readDt: null, regDt: "2026-02-20T09:00:00", timeAgo: "1시간 전" },
+  { alertId: 2, alertType: "MODEL_TRAIN_SUCCESS", alertTypeNm: "모델학습완료", alertTitle: "신용평가 모델 학습 완료", alertMsg: "LOGISTIC_V3 모델 학습이 완료되었습니다. 정확도: 94.2%", linkUrl: "/models", readYn: "N", readDt: null, regDt: "2026-02-20T08:30:00", timeAgo: "2시간 전" },
+  { alertId: 3, alertType: "UPLOAD_COMPLETE", alertTypeNm: "업로드완료", alertTitle: "기초데이터 업로드 완료", alertMsg: "2026년 1월 기초데이터 업로드가 완료되었습니다. 총 1,250건", linkUrl: "/admin/rawdata", readYn: "Y", readDt: "2026-02-19T15:00:00", regDt: "2026-02-19T14:30:00", timeAgo: "어제" },
+];
+
+let _alerts = [...mockAlerts];
 
 export const alertService = {
-  /**
-   * 알림 목록 조회
-   */
-  getAlertList: async (params?: {
-    readYn?: string;
-    page?: number;
-    size?: number;
-  }): Promise<AlertListResponse> => {
-    const response = await api.get<ApiResponse<AlertListResponse>>(BASE_URL, {
-      params,
-    });
-    return response.data.data!;
+  getAlertList: async (params?: { readYn?: string; page?: number; size?: number }): Promise<AlertListResponse> => {
+    await new Promise((r) => setTimeout(r, 100));
+    const filtered = params?.readYn ? _alerts.filter((a) => a.readYn === params.readYn) : _alerts;
+    return { content: filtered, totalCount: filtered.length, page: 0, size: 10, totalPages: 1 };
   },
-
-  /**
-   * 미읽음 건수 조회
-   */
   getUnreadCount: async (): Promise<number> => {
-    const response = await api.get<ApiResponse<{ unreadCount: number }>>(
-      `${BASE_URL}/unread-count`
-    );
-    return response.data.data?.unreadCount || 0;
+    return _alerts.filter((a) => a.readYn === "N").length;
   },
-
-  /**
-   * 알림 읽음 처리
-   */
   readAlert: async (alertId: number): Promise<void> => {
-    await api.put(`${BASE_URL}/${alertId}/read`);
+    _alerts = _alerts.map((a) => a.alertId === alertId ? { ...a, readYn: "Y", readDt: new Date().toISOString() } : a);
   },
-
-  /**
-   * 전체 읽음 처리
-   */
   readAllAlerts: async (): Promise<number> => {
-    const response = await api.put<ApiResponse<{ updatedCount: number }>>(
-      `${BASE_URL}/read-all`
-    );
-    return response.data.data?.updatedCount || 0;
+    const count = _alerts.filter((a) => a.readYn === "N").length;
+    _alerts = _alerts.map((a) => ({ ...a, readYn: "Y", readDt: new Date().toISOString() }));
+    return count;
   },
 };
 
